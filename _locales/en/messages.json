@@ -1,0 +1,55 @@
+{
+  "title": {
+    "message": "Options"
+  },
+  "col_number": {
+    "message": "NO.",
+    "description": "Number."
+  },
+  "col_url": {
+    "message": "URL",
+    "description": "URL"
+  },
+  "col_interval": {
+    "message": "INTERVAL",
+    "description": "Interval time"
+  },
+  "col_expect": {
+    "message": "EXPECT",
+    "description": "expect"
+  },
+  "col_message": {
+    "message": "MESSAGE",
+    "description": "message"
+  },
+  "col_action": {
+    "message": "ACTION",
+    "description": "delete change?"
+  },
+  "col_timeout": {
+    "message": "TIMEOUT"
+  },
+  "btn_add": {
+    "message": "ADD",
+    "description": "add new rule"
+  },
+  "btn_del": {
+    "message": "delete",
+    "description": "delete a rule"
+  },
+  "btn_active": {
+    "message": "ACTIVE"
+  },
+  "btn_sleep": {
+    "message": "SLEEP"
+  },
+  "setting_1": {
+    "message": "Rules"
+  },
+  "setting_2": {
+    "message": "General"
+  },
+  "notify_showtime": {
+    "message": "notification appearance span time is {} s"
+  }
+}

@@ -1,0 +1,79 @@
+<!DOCTYPE html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link rel="stylesheet" href="mld/css/materialize.min.css">
+	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="mld/fonts/material-design-icon/material-icons.css">
+	<script src="avalon.js"></script>
+	<script src="message.js"></script>
+	<script src="mld/js/jquery.min.js"></script>
+	<script src="mld/js/materialize.min.js"></script>
+</head>
+
+<body :controller="p" class="pop-body">
+	<div class="debug">{{@debug}}</div>
+	<div class="container valign-wrapper" style="padding: 30px auto;">
+		<div class="preloader-wrapper big active valign" :if="@loading" id="loading">
+			<div class="spinner-layer spinner-blue">
+				<div class="circle-clipper left">
+					<div class="circle"></div>
+				</div>
+				<div class="gap-patch">
+					<div class="circle"></div>
+				</div>
+				<div class="circle-clipper right">
+					<div class="circle"></div>
+				</div>
+			</div>
+
+			<div class="spinner-layer spinner-red">
+				<div class="circle-clipper left">
+					<div class="circle"></div>
+				</div>
+				<div class="gap-patch">
+					<div class="circle"></div>
+				</div>
+				<div class="circle-clipper right">
+					<div class="circle"></div>
+				</div>
+			</div>
+
+			<div class="spinner-layer spinner-yellow">
+				<div class="circle-clipper left">
+					<div class="circle"></div>
+				</div>
+				<div class="gap-patch">
+					<div class="circle"></div>
+				</div>
+				<div class="circle-clipper right">
+					<div class="circle"></div>
+				</div>
+			</div>
+
+			<div class="spinner-layer spinner-green">
+				<div class="circle-clipper left">
+					<div class="circle"></div>
+				</div>
+				<div class="gap-patch">
+					<div class="circle"></div>
+				</div>
+				<div class="circle-clipper right">
+					<div class="circle"></div>
+				</div>
+			</div>
+		</div>
+
+		<div :if="!@loading" class="container">
+			<div class="row">
+				<div class="col s12 center-align">
+					<div :class="['toggle-slide', (@active && 'active'), !@isMatch && 'disabled']" :on-click="@switchActive">
+						<button :class="['btn-floating btn-large waves-effect waves-light', @active ? 'red' : 'black']">{{@btnname()}}</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="popup.js"></script>
+</body>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-CN" lang="zh-CN">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" href="mld/css/materialize.min.css">
+	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="mld/fonts/material-design-icon/material-icons.css">
+	<script src="avalon.js"></script>
+	<script src="message.js"></script>
+	<script src="db.js"></script>
+	<script src="mld/js/jquery.min.js"></script>
+	<script src="mld/js/materialize.min.js"></script>
+</head>
+
+<body ms-controller="n" class="waiting waiting-render">
+	<form class="container">
+		<h4 style="text-align: center;">{{MSG.title}}</h4>
+    <blockquote>
+      <h6>{{MSG.setting_1}}<a href="#setting-1">{{' #'}}</a></h6>
+    </blockquote>
+		<div id="setting-1">
+			<table class="striped" id="datalist">
+				<thead>
+					<tr>
+						<th>{{MSG.col_url}}</th>
+						<th>{{MSG.col_interval}}</th>
+						<th class="center-align">{{MSG.col_timeout}}</th>
+						<th>{{MSG.col_expect}}</th>
+						<th>{{MSG.col_message}}</th>
+						<th class="center-align">{{MSG.col_action}}</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ms-for="($index, el) in @list" class="hoverable">
+						<td>{{el.url}}</td>
+						<td class="center-align">{{el.interval}} s</td>
+						<td class="center-align">{{el.timeout|sec2min}}</td>
+						<td>{{el.select}}</td>
+						<td>{{el.msg}}</td>
+						<td style="vertical-align: middle;" class="center-align">
+							<a ms-on-click="@del($index)" class="btn-flat waves-effect waves-light" :attr="{ title: MSG.btn_del }">
+								<i class="mdi">close</i></a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div class="row" style="margin-top: 45px">
+			<div class="input-field col s6">
+				<input name="url" type="text" ms-rules="{required:true}" ms-duplex-string="@iurl" />
+				<label for="url">{{MSG.col_url}}</label>
+			</div>
+			<div class="input-field col s6">
+				<input name="msg" type="text" ms-rules="{required:true}" ms-duplex-string="@imsg" />
+				<label for="msg">{{MSG.col_message}}</label>
+			</div>
+			<div class="col s6">
+				<p class="range-field">
+					<input type="range" name="interval" min="1" max="60" ms-duplex-number="@iinterval" />
+					<label for="interval">{{MSG.col_interval}}<span>{{' ' + @iinterval + ' s'}}</span></label>
+				</p>
+			</div>
+			<div class="col s6">
+				<p class="range-field">
+					<input type="range" name="timeout" min="1" max="600" ms-duplex-number="@itimeout" />
+					<label for="timeout">{{MSG.col_timeout}}<span>{{@itimeout|sec2min}}</span></label>
+				</p>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col s12 input-field">
+				<textarea class="materialize-textarea" name="expect" ms-rules="{required:true}" ms-duplex-string="@iexpect"></textarea>
+				<label for="expect">{{MSG.col_expect}}</label>
+			</div>
+		</div>
+		<div class="row">
+			<button ms-on-click="@add($event)" class="waves-effect waves-light btn">
+          {{MSG.btn_add}}
+        </button>
+		</div>
+    <div class="divider"></div>
+    <blockquote>
+      <h6>{{MSG.setting_2}}
+      <a href="#setting-2">{{' #'}}</a></h6>
+    </blockquote>
+    <div class="row">
+      <div class="col center-align input-field">
+        <input name="notify-show-time" type="number" :duplex-number="@notifyShowTime" />
+        <label for="notify-show-time">{{MSG.notify_showtime.replace('{}', @notifyShowTime)}}</label>
+      </div>
+    </div>
+	</form>
+
+	<script src="options.js"></script>
+</body>
+
+</html>

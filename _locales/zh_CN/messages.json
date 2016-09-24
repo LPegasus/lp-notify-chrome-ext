@@ -1,0 +1,47 @@
+{
+  "title": {
+    "message": "设置"
+  },
+  "col_number": {
+    "message": "序号"
+  },
+  "col_url": {
+    "message": "URL"
+  },
+  "col_interval": {
+    "message": "轮询间隔"
+  },
+  "col_expect": {
+    "message": "断言"
+  },
+  "col_message": {
+    "message": "提示文案"
+  },
+  "col_action": {
+    "message": "操作"
+  },
+  "col_timeout": {
+    "message": "超时"
+  },
+  "btn_add": {
+    "message": "新增"
+  },
+  "btn_del": {
+    "message": "删除"
+  },
+  "btn_active": {
+    "message": "激活"
+  },
+  "btn_sleep": {
+    "message": "禁止"
+  },
+  "setting_1": {
+    "message": "规则"
+  },
+  "setting_2": {
+    "message": "通用"
+  },
+  "notify_showtime": {
+    "message": "通知显示时长 {} s"
+  }
+}
