@@ -1,10 +1,11 @@
 // sender = {id: extension id, url: tab url}
 ; (function () {
   'use strict';
+  const _watchHandler_ = {};  // tabId 标记监控是否激活中
   const funcs = {
     fetch: function (message, sender) {
       return _dbUtils_.fetchOptions().then(function (data) {
-        sendMessage('fetch', data);
+        sendMessage('fetch', { list: data, isActive: !!_watchHandler_[message.tabId] });
       });
     },
     active: function (message, sender) {// 激活
@@ -12,16 +13,53 @@
         let datum = data.filter(function (d) { return d.url === message.url; })[0];
         if (!datum) {
           setIcon(false);
-          sendMessage('active', { status: 'error', msg: 'No matched url.' });
+          chrome.tabs.query({ active: true }, function (t) {
+            _watchHandler_[t[0].id] = undefined;
+            sendMessage('active', { status: 'error', msg: 'No matched url.' }, t[0].id);
+          });
         } else {
           setIcon('active');
-          sendMessage('active', { status: 'ok', meta: datum });
+          chrome.storage.local.get('notifyShowTime', function (res) {
+            const time = res.notifyShowTime || 5;
+            datum.notifyShowTime = time;
+            chrome.tabs.query({ active: true }, function (t) {
+              _watchHandler_[t[0].id] = true;
+              sendMessage('active', { status: 'ok', meta: datum, }, t[0].id);
+            });
+          });
         }
       });
+    },
+    inactive: function (message) {
+      return _dbUtils_.fetchOptions().then(function (data) {
+        let datum = data.filter(function (d) { return d.url === message.url; })[0];
+        if (!datum) {
+          setIcon(false);
+          chrome.tabs.query({ active: true }, function (t) {
+            _watchHandler_[t[0].id] = undefined;
+            sendMessage('inactive', { status: 'error', msg: 'No matched url.' }, t[0].id);
+          });
+        } else {
+          setIcon(true);
+          chrome.tabs.query({ active: true }, function (t) {
+            _watchHandler_[t[0].id] = undefined;
+            sendMessage('inactive', { status: 'ok', meta: datum }, t[0].id);
+          });
+        }
+      });
+    },
+    success: function (message) {
+      _watchHandler_[message.tabId] = undefined;
+      notify('SUCCESS', message.msg);
+      setIcon(true);
+    },
+    timeout: function (message) {
+      _watchHandler_[message.tabId] = undefined;
+      notify('TIMEOUT', message.msg);
+      setIcon(true);
     }
   };
 
-  const _watchHandler_ = {};  // 监控句柄
 
   _dbUtils_.connect().then(function () {
     chrome.runtime.onMessage.addListener(function (message, sender) {
@@ -44,6 +82,9 @@
         setIcon(true);
         return;
       }
+      if (_watchHandler_[tabId]) {
+        return setIcon('active');
+      }
       _dbUtils_.fetchOptions().then(function (data) {
         setIcon(data.some(function (d) {
           return new RegExp(d.url).test(tabInfo.url);
@@ -52,8 +93,14 @@
     });
   });
 
-  function sendMessage(type, data) {
-    chrome.runtime.sendMessage(JSON.stringify({ type: type, data: data }));
+  function sendMessage(type, data, withTabId) {
+    const msg = JSON.stringify({ type: type, data: data });
+    chrome.runtime.sendMessage(msg);
+    if (withTabId) {
+      chrome.tabs.sendMessage(withTabId, JSON.stringify({
+        type: type, data: Object.assign({ tabId: withTabId }, data)
+      }));
+    }
   }
 
   function setIcon(b) {
@@ -67,17 +114,24 @@
   }
 
   function notify(title, msg, data) {
-    const n = new Notification(title, {
-      badge: chrome.extension.getURL('images/Notify-Ext@288x288.png'),
-      body: msg,
-      icon: chrome.extension.getURL('images/Notify-Ext@288x288.png'),
-      data: data
+    chrome.storage.local.get('notifyShowTime', function (res) {
+      const notifyShowTime = (res.notifyShowTime || 5) * 1000;
+      const icon = title === 'TIMEOUT' ? 'images/Notify-Ext@watch.png' : 'images/Notify-Ext@288x288.png';
+      const n = new Notification(title, {
+        // badge: chrome.extension.getURL('images/Notify-Ext@288x288.png'),
+        body: msg,
+        icon: chrome.extension.getURL(icon),
+        data: data
+      });
+      n.onclick = function () {
+        n.close();
+      }
+      const cid = setTimeout(function () {
+        n.close();
+      }, notifyShowTime);
+      n.onclose = function() {
+        clearTimeout(cid);
+      }
     });
-    n.onclick = function() {
-      
-    }
-    setTimeout(function() {
-      n.close();
-    }, 5000);
   }
 })();

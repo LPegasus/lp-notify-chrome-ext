@@ -4,8 +4,11 @@
   const funcs = {
     fetch: function (data) {
       if (!vm) return;
-      vm.list = data;
+      vm.list = data.list;
       vm.loading = false;
+      if (data.isActive) {
+        vm.active = true;
+      }
     }
   };
 
@@ -16,26 +19,26 @@
     isMatch: false,
     debug: '',
     active: false,
-    switchActive: function() {
+    switchActive: function () {
       if (!vm.isMatch) return;
       vm.active = !vm.active;
     },
     currentUrl: '',
     matchedUrl: '',
-    btnname: function() {
+    btnname: function () {
       return !this.active ? MSG.btn_active : MSG.btn_sleep;
     }
   });
-  chrome.tabs.getSelected(function(tab) {
+  chrome.tabs.query({ active: true }, function (tab) {
     vm.debug = tab.url;
   });
-  vm.$watch("list.*.url", function(n, o) {
+  vm.$watch("list.*.url", function (n, o) {
     if ((new RegExp(n, 'i').test(this.currentUrl))) {
       vm.isMatch = true;
     }
   });
-  vm.$watch("list.length", function(n, o) {
-    vm.isMatch = vm.list.some(function(d) {
+  vm.$watch("list.length", function (n, o) {
+    vm.isMatch = vm.list.some(function (d) {
       let res = (new RegExp(d.url, 'i')).test(vm.currentUrl);
       if (res) {
         vm.matchedUrl = d.url;
@@ -43,19 +46,19 @@
       return res;
     });
   });
-  vm.$watch("active", function(n, o) {
+  vm.$watch("active", function (n, o) {
     if (n === true && o === false && vm.matchedUrl) {
-      chrome.runtime.sendMessage(JSON.stringify({type: 'active', url: vm.matchedUrl}));
-    }
-  });
-  vm.$watch("inactive", function(n, o) {
-    if (n === false && o === true && vm.matchedUrl) {
+      chrome.runtime.sendMessage(JSON.stringify({ type: 'active', url: vm.matchedUrl }));
+    } else if (n === false && o === true && vm.matchedUrl) {
       chrome.runtime.sendMessage(JSON.stringify({ type: 'inactive', url: vm.matchedUrl }));
     }
   });
 
   const popupHandlerRes = popupHandlerFactory();
-  chrome.runtime.sendMessage(JSON.stringify({ type: 'fetch' }));
+  chrome.tabs.query({active: true}, function(t){
+    let tabId = t[0].id;
+    chrome.runtime.sendMessage(JSON.stringify({ type: 'fetch', tabId: tabId }));
+  });
   chrome.runtime.onMessage.addListener(popupHandlerRes.handler);
   function popupHandlerFactory() {
     return {
@@ -66,23 +69,23 @@
         if (!func) return;
         func.call(null, res.data);
       },
-      dispose: function() {
+      dispose: function () {
         chrome.runtime.onMessage.removeListener(this.handler);
       }
     }
   }
 
-/*
-  chrome.tabs.onActiveChanged.addListener(function (tabId, selectInfo) {
-    chrome.tabs.get(tabId, function(tabInfo) {
-      if (tabInfo.url.indexOf('chrome-extension://') === 0) {
-        return;
-      }
-      vm.currentUrl = tabInfo.url;
+  /*
+    chrome.tabs.onActiveChanged.addListener(function (tabId, selectInfo) {
+      chrome.tabs.get(tabId, function(tabInfo) {
+        if (tabInfo.url.indexOf('chrome-extension://') === 0) {
+          return;
+        }
+        vm.currentUrl = tabInfo.url;
+      });
     });
-  });
-*/
-  chrome.tabs.getSelected(function(tab) {
-    vm.currentUrl = tab.url;
+  */
+  chrome.tabs.query({ active: true }, function (tab) {
+    vm.currentUrl = tab[0].url;
   });
 })(window);

@@ -86,7 +86,6 @@
     return new Promise(function (resolve, reject) {
       dbreq = indexedDB.open(dbname, 1);
       dbreq.onsuccess = function (evt) {
-        console.log('db open success');
         db = evt.target.result;
         db.onclose = function () {
           console.log('db closed;');
@@ -106,7 +105,6 @@
         }
       };
       dbreq.onupgradeneeded = function (evt) {
-        console.log('upgrade end');
         db = evt.target.result;
         db.createObjectStore('urls', { keyPath: 'url' });
       };

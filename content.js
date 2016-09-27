@@ -1,21 +1,25 @@
 // only subscribe the message from background;
 ; (function (win) {
   'use strict';
-  console.log('injected');
+  let intervalId = 0, setTimeoutId = 0;
   const funcs = {
     'active': function (message, sender) {
-      if (message.status !== 'ok') return;
+      if (message.data.status !== 'ok') return;
       const meta = message.data.meta;
       if (!meta || !(new RegExp(meta.url, 'i')).test(location.href)) return;
-
+      startWatch(meta);
+    },
+    'inactive': function (message, sender) {
+      clearInterval(intervalId);
+      clearTimeout(setTimeoutId);
     }
   };
 
   chrome.runtime.onMessage.addListener(function (message, sender) {
-    if (sender.id !== chrome.runtime.id || sender.url.indexOf('background.html') === -1) {
+    if (sender.id !== chrome.runtime.id) {
       return;
     }
-    const msg = JSON.parse(message.type);
+    const msg = JSON.parse(message);
     const func = funcs[msg.type];
     if (func) {
       func.call(null, msg, sender);
@@ -28,42 +32,43 @@
   function startWatch(meta) {
     let res;
     const url = meta.url;
-    const msg = meta.msg;
-    const interval = meta.interval * 1000;
-    const expect = meta.select;
-    const timeout = meta.timeout * 1000;
-    const timeoutMsg = `url: ${url} timeout.`;
-    if (select.indexOf('expect(') === -1) {
+    const msg = meta.msg;           // 成功提示
+    const interval = meta.interval * 1000; // 间隔
+    let expectExp = meta.select;           // 断言
+    const timeout = meta.timeout * 1000;  // 超时
+    const timeoutMsg = `url: ${url} timeout.`;  // 超时提示
+    const notifyShowTime = meta.notifyShowTime * 1000;  // notification 显示时长
+
+    // 检查断言
+    if (expectExp.indexOf('expect(') === -1) {
       alert('Invalid expect expression; Please check your expect in option page.');
       return;
     }
 
+    expectExp = expect.toString() + expectExp;
+    // 非法断言检查
     try {
-      res = eval(meta.expect);
+      res = eval(expectExp);
     } catch (e) {
-      alert('Invalid expect expression;');
+      return alert('Invalid expect expression;');
     }
-    let setTimeoutId = 0;
-    const intervalId = setInterval(function () {
-      res = eval(meta.expect);
+    clearInterval(intervalId);
+    clearTimeout(setTimeoutId);
+    // 声明轮询
+    intervalId = setInterval(function () {
+      res = eval(expectExp);
+      // 匹配成功
       if (res === true) {
         clearInterval(intervalId);
         clearTimeout(setTimeoutId);
-        new Notification('Finish', {
-          badge: chrome.extension.getURL('images/Notify-Ext@288x288.png'),
-          body: '<strong>1231123</strong>',
-          tag: '<strong>tag</strong>',
-          icon: chrome.extension.getURL('images/Notify-Ext@288x288.png'),
-          data: {
-            meta: 'meta'
-          }
-        });
+        chrome.runtime.sendMessage(JSON.stringify({ type: 'success', tabId: meta.tabId, msg: msg}));
       }
     }, interval);
 
     // 超时
     setTimeoutId = setTimeout(function() {
       clearInterval(intervalId);
+      chrome.runtime.sendMessage(JSON.stringify({ type: 'timeout', tabId: meta.tabId, msg: timeoutMsg}));
     }, timeout);
   }
 

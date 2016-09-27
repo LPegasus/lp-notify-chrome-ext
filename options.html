@@ -13,7 +13,7 @@
 	<script src="mld/js/materialize.min.js"></script>
 </head>
 
-<body ms-controller="n" class="waiting waiting-render">
+<body ms-controller="n" class="waiting waiting-render" style="padding-bottom: 30px;">
 	<form class="container">
 		<h4 style="text-align: center;">{{MSG.title}}</h4>
     <blockquote>
@@ -48,21 +48,21 @@
 		</div>
 
 		<div class="row" style="margin-top: 45px">
-			<div class="input-field col s6">
+			<div class="input-field col s6 m3">
 				<input name="url" type="text" ms-rules="{required:true}" ms-duplex-string="@iurl" />
 				<label for="url">{{MSG.col_url}}</label>
 			</div>
-			<div class="input-field col s6">
+			<div class="input-field col s6 m3">
 				<input name="msg" type="text" ms-rules="{required:true}" ms-duplex-string="@imsg" />
 				<label for="msg">{{MSG.col_message}}</label>
 			</div>
-			<div class="col s6">
+			<div class="col s6 m3">
 				<p class="range-field">
 					<input type="range" name="interval" min="1" max="60" ms-duplex-number="@iinterval" />
 					<label for="interval">{{MSG.col_interval}}<span>{{' ' + @iinterval + ' s'}}</span></label>
 				</p>
 			</div>
-			<div class="col s6">
+			<div class="col s6 m3">
 				<p class="range-field">
 					<input type="range" name="timeout" min="1" max="600" ms-duplex-number="@itimeout" />
 					<label for="timeout">{{MSG.col_timeout}}<span>{{@itimeout|sec2min}}</span></label>
@@ -75,24 +75,31 @@
 				<label for="expect">{{MSG.col_expect}}</label>
 			</div>
 		</div>
-		<div class="row">
+		<div class="row center-align">
 			<button ms-on-click="@add($event)" class="waves-effect waves-light btn">
           {{MSG.btn_add}}
         </button>
 		</div>
-    <div class="divider"></div>
+    <div class="divider" style="margin-top: 45px"></div>
     <blockquote>
       <h6>{{MSG.setting_2}}
       <a href="#setting-2">{{' #'}}</a></h6>
     </blockquote>
-    <div class="row">
+    <div class="row" id="setting-2">
       <div class="col center-align input-field">
         <input name="notify-show-time" type="number" :duplex-number="@notifyShowTime" />
         <label for="notify-show-time">{{MSG.notify_showtime.replace('{}', @notifyShowTime)}}</label>
       </div>
     </div>
+		<div class="row">
+			<div class="col center-align">
+				<button class="btn waves-effect waves-light blue" :click="@commonSave">save</button>
+			</div>
+		</div>
 	</form>
-
+	<div id="msg-box" :class="[@msgShow && 'show']">
+		{{@message}}
+	</div>
 	<script src="options.js"></script>
 </body>
 
