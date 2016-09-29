@@ -26,13 +26,14 @@
   },
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "background": {
-    "page": "background.html"
+    "page": "background.html",
+    "persistent": false
   },
   "content_scripts": [
     {
       "js": ["content.js"],
-      "matches": ["*://*.alipay.com/*"],
-      "run_at": "document_idle"
+      "matches": ["*://*/*"],
+      "run_at": "document_start"
     }
   ]
 }
